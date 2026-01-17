@@ -1,20 +1,25 @@
+require("dotenv").config();
 const express = require("express")
 const app = express()
 const cors = require("cors");
 const mongoose = require("mongoose");
-require("dotenv").config();
 const user = require("./Router/user");
 const product = require("./Router/product");
 
-const PORT = process.env.PORT||4000;
-const DB_ENDPOINT = "mongodb://anshul28072000:roots@ac-utnzgqz-shard-00-00.rjg1jvl.mongodb.net:27017,ac-utnzgqz-shard-00-01.rjg1jvl.mongodb.net:27017,ac-utnzgqz-shard-00-02.rjg1jvl.mongodb.net:27017/?ssl=true&replicaSet=atlas-cf6gn2-shard-0&authSource=admin&retryWrites=true&w=majority";
-mongoose.connect(DB_ENDPOINT,(err,database)=>{
-    if(err){
-        console.log(err);
-        return;
-    }
-    console.log("Connected Database");
-})
+const PORT = process.env.PORT||8080;
+setTimeout(() => {
+  if (!process.env.DB_ENDPOINT) {
+    console.warn("DB_ENDPOINT not set. Skipping MongoDB connection.");
+    return;
+  }
+
+  mongoose.connect(process.env.DB_ENDPOINT, {
+    serverSelectionTimeoutMS: 5000, // ⛔ prevents startup hang
+    socketTimeoutMS: 45000,
+  })
+    .then(() => console.log("MongoDB Connected"))
+    .catch(err => console.error("MongoDB Error:", err.message));
+}, 0);
 
 // middleware
 app.use(cors())
